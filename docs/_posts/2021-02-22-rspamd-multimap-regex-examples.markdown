@@ -1,6 +1,9 @@
-
-
-# using multimap module in rspamd
+---
+layout: post
+title:  "Using multimap module in Rspamd"
+date:   2021-03-02 14:12:35 -0500
+categories: rspamd regex multimap
+---
 
 I wanted to use the multimap module in rspamd to block specific email
 addresses and domains, as well as allow certain email addresses, ip
@@ -161,3 +164,13 @@ so I just rejected or accepted the email if it matched the ip address.
 These ip maps seem a little less useful, as spams using the same email
 address or domain seem to come from many different ip addresses. Still,
 might be useful if specific IP addresses are pounding you with spam.
+
+## more info 
+
+Check out the [Rspamd docs][rspamd] and the [multimap module][multimap] for more info.
+If you need more help with regular expressions, see the [perldoc pages][perlinfo].
+
+[rspamd]: https://rspamd.com/
+[multimap]: https://rspamd.com/doc/modules/multimap.html
+[perlinfo]: https://perldoc.perl.org/perlre
+
