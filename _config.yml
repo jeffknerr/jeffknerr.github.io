@@ -28,7 +28,7 @@ twitter_username: jeffknerr
 github_username:  jeffknerr
 
 # Build settings
-theme: minima
+theme: jekyll-theme-hacker
 #theme: jekyll-shell-theme
 plugins:
   - jekyll-feed
