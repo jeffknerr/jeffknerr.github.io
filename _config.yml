@@ -28,8 +28,9 @@ twitter_username: jeffknerr
 github_username:  jeffknerr
 
 # Build settings
-theme: jekyll-theme-hacker
+#theme: minima
 #theme: jekyll-shell-theme
+remote_theme: aterenin/minima-reboot
 plugins:
   - jekyll-feed
 
@@ -52,3 +53,10 @@ plugins:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+footer_icons:
+  - username: jeffknerr
+    url: https://github.com/jeffknerr
+    icon: icon-github.svg
+  - username: jeffknerr
+    url: https://twitter.com/jeffknerr
+    icon: icon-twitter.svg

@@ -90,7 +90,7 @@ take a minute or two to finish the full deploy).
 ## things to fix
 
 - I get a **running version of Bundler (2.1.2) is older than...** warning when I run `jekyll serve`
-- find a better jekyll theme
+- find a better [jekyll theme](https://github.com/aterenin/minima-reboot)
 - fix up the front page and all of the little things...
 
 

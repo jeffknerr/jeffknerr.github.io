@@ -1,13 +1,10 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: home
 number: 5
-text: hello!
+text: hello text variable!
 ---
-
-# Jeff Knerr's page...
 
 I'm trying to write up some of the stuff I've learned, so I don't forget
 it, or can easily find it again, or so others can find it.
