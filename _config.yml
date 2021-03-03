@@ -23,12 +23,13 @@ email: knerr@cs.swarthmore.edu
 description: >- # this means to ignore newlines until "baseurl:"
    Helpful linux stuff I've struggled to figure out.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://jeffknerr.github.io/"
 twitter_username: jeffknerr
 github_username:  jeffknerr
 
 # Build settings
 theme: minima
+#theme: jekyll-shell-theme
 plugins:
   - jekyll-feed
 
