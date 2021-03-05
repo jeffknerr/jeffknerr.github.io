@@ -36,8 +36,9 @@ rotation when they were up again.
 
 ## the setup
 
-- one server runs haproxy and has the hostname you want students to use 
-    when sshing in (e.g., `lab.myschool.edu`)
+- one server (we use debian) runs haproxy (v1.8.19) and has the hostname you want 
+    the students to use 
+    when connecting (e.g., `ssh lab.myschool.edu`)
 - nobody actually logs in to the haproxy server except admins, so you don't 
     need to set up student accounts on the haproxy server
 - set up haproxy to bind to port 22 (see the `listen ssh` part of the config file below)
@@ -131,7 +132,8 @@ Some things to note in the above config:
     [certbot](https://certbot.eff.org/) and [letsencrypt](https://letsencrypt.org/)
     for our ssl certificate)
 * the `tcp-check` line means it is looking for a string that starts with SSH-2.0-OpenSSH
-    when checking if the ssh service is up on each host
+    when checking if the ssh service is up on each host. Try `telnet hostname 22` to 
+    see what your sshd prints.
 * for each server line, the `check inter 10s fall 2 rise 1` part controls how haproxy
     checks (every 10 sec) for offline (2 failed checks) and online (1 successful check) hosts
 * we set the timeouts to 36 hours, since students sometimes set up long-running (overnight)
