@@ -4,12 +4,8 @@ title:  "this setup"
 date:   2021-03-03 11:06:10 -0500
 categories: jekyll markdown github pages
 ---
-
-[utc]: https://uoftcoders.github.io/studyGroup/lessons/misc/jekyll-ghpages/lesson/
-[jekyll]: https://jekyllrb.com/docs/
-
-Below are my notes from making this site. I will
-try to add to it as I learn more jekyll and how the
+Here are my notes from making this site. I will
+add to it as I learn more jekyll and how the
 github.io stuff works.
 
 # docs I followed
@@ -93,4 +89,7 @@ take a minute or two to finish the full deploy).
 - find a better [jekyll theme](https://github.com/aterenin/minima-reboot)
 - fix up the front page and all of the little things...
 
+
+[utc]: https://uoftcoders.github.io/studyGroup/lessons/misc/jekyll-ghpages/lesson/
+[jekyll]: https://jekyllrb.com/docs/
 

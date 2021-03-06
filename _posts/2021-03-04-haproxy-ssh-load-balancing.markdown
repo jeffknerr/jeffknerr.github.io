@@ -4,12 +4,6 @@ title:  "load-balancing ssh with haproxy"
 date:   2021-03-04 15:00:00 -0500
 categories: haproxy ssh load-balancing
 ---
-
-[haproxy]: https://cbonte.github.io/haproxy-dconv/2.2/intro.html#1
-[jake]: https://jakec007.github.io/
-[petrenko]: https://jonnyzzz.com/blog/2017/05/24/ssh-haproxy/
-[carmi]: https://evancarmi.com/writing/setup-haproxy-stats-over-https/
-
 I am the sysadmin for a small Computer Science department. Last summer (2020)
 one of our students ([Jake Chanenson][jake]) helped us set up [haproxy][haproxy]
 as a load-balancer for incoming ssh connections. This page describes our setup.
@@ -173,4 +167,10 @@ Pros and cons:
 I was originally unsure what size server would be needed for this. So far, even with 100+ connections,
 the server has shown very little memory usage and negligible CPU load. I'm guessing haproxy was
 built to withstand higher loads. I probably way over-bought for this server (128GB memory, 16 CPU cores).
+
+
+[haproxy]: https://cbonte.github.io/haproxy-dconv/2.2/intro.html#1
+[jake]: https://jakec007.github.io/
+[petrenko]: https://jonnyzzz.com/blog/2017/05/24/ssh-haproxy/
+[carmi]: https://evancarmi.com/writing/setup-haproxy-stats-over-https/
 

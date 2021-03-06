@@ -2,8 +2,6 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: home
-number: 5
-text: hello text variable!
 ---
 
 I'm trying to write up some of the stuff I've learned, so I don't forget
@@ -14,7 +12,11 @@ This is my attempt at giving something back. I hope my notes and scripts
 help you. Let me know if you have questions.
 
 WARNING: Everything here is *use-at-your-own-risk*! If you use something of 
-mine and it kills your machine, it's not my fault. 
+mine and it ruins your computer, it's not my fault. 
 *I'm not responsible, and I can't be trusted*.
 
-## {{page.text | upcase}}
+----
+
+# Posts
+
+
