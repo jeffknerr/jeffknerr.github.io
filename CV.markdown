@@ -1,9 +1,9 @@
 ---
 layout: default
 title: CV
-permalink: /assets/pdfs/JKnerrCV.pdf/
+permalink: /CV/
 ---
 
-When deployed to the real server, the above permalink
-should resolve correctly...
+Curriculum Vitae
 
+<embed src="https://jeffknerr.github.io/assets/pdfs/JKnerrCV.pdf" type="application/pdf"/>
