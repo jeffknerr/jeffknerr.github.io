@@ -29,6 +29,7 @@ Here are a bunch of links I have used while trying to figure this out:
 - [debian ldap wiki]
 - [zytrax book] (link currently gives SSL error, needs TLS 1.0 or 1.1)
 - [tyler memberof page]
+- [Cyrill Gremaud new schema page]
 
 
 # LDAP server
@@ -74,6 +75,11 @@ objectClass: organizationalUnit
 ou: groups
 
 $ sudo ldapadd -x -D cn=admin,dc=cs,dc=college,dc=edu -W -f base.ldif
+Enter LDAP Password:
+adding new entry "ou=people,dc=cs,dc=college,dc=edu"
+
+adding new entry "ou=groups,dc=cs,dc=college,dc=edu"
+
 ```
 
 Running the `ldapadd` command will ask for the admin password you 
@@ -89,6 +95,10 @@ replace: olcLogLevel
 olcLogLevel: stats
 
 $ sudo ldapmodify -H ldapi:/// -Y EXTERNAL -f logging.ldif
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+modifying entry "cn=config"
 ```
 
 ## SSL cert
@@ -100,7 +110,11 @@ $ sudo apt-get install certbot
 $ sudo certbot certonly --standalone
 ```
 
-Also, if you have a firewall, make sure the firewall allows ports 80/443 to 
+When certbot asks for your *domain name*, what it really wants is
+your *hostname* (i.e., the hostname of your ldap server -- in my 
+example case, `ldap.cs.college.edu`).
+
+Also, if you have a firewall, you may need to allow ports 80/443 to 
 your LDAP server for this step (and any renewals).
 
 ### make letsencrypt files all readable by openldap
@@ -119,12 +133,14 @@ Also add these to the certbot post renew hook!
 $ sudo cat /etc/letsencrypt/renewal-hooks/post/fixPermissions 
 #!/bin/bash
 
-#make keys readable by openldap
+# make SSL keys readable by openldap
 cd /etc/letsencrypt
 chgrp -R openldap live
 chgrp -R openldap archive
 chmod -R g+rX live
 chmod -R g+rX archive
+
+$ sudo chmod 755 /etc/letsencrypt/renewal-hooks/post/fixPermissions 
 ```
 
 ### now add SSL info to ldap
@@ -145,6 +161,11 @@ replace: olcTLSCACertificateFile
 olcTLSCACertificateFile: /etc/letsencrypt/live/ldap.cs.college.edu/chain.pem
     
 $ sudo ldapmodify -H ldapi:/// -Y EXTERNAL -f ssl.ldif
+SASL/EXTERNAL authentication started
+SASL username: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+SASL SSF: 0
+modifying entry "cn=config"
+
 ```
 
 
@@ -155,7 +176,7 @@ Again, assuming our ldap server is `ldap.cs.college.edu`:
 ```bash
 $ cat /etc/ldap/ldap.conf
 BASE        dc=cs,dc=college,dc=edu
-URI         ldap://ldap.cs.college.edu
+URI         ldaps://ldap.cs.college.edu
 TLS_CACERT  /etc/letsencrypt/live/ldap.cs.college.edu/chain.pem
 ```
 
@@ -179,10 +200,19 @@ Enter LDAP Password: xxxxxxxxxx
 dn:cn=admin,dc=cs,dc=college,dc=edu
 ```
 
-Test if we can *see* the letsencrypt info from another computer:
+Test if we can *see* the letsencrypt info from another computer (hit `Ctrl-d` when done):
 
 ```bash
 labcomputer$ openssl s_client -connect ldap.cs.college.edu:636 -showcerts              
+```
+
+See if server is listening on ldaps port (636):
+
+```bash
+labcomputer$ nmap ldap.cs.college.edu
+...
+636/tcp open  ldapssl
+...
 ```
 
 ## change db max size
@@ -292,15 +322,17 @@ don't stick...
 
 ## add users and groups
 
-Finally, we can try to add a user and a group! We made a giant 
+*Finally*, we can try to add a users and  groups! 
+
+For our server we made a giant 
 `usersgroups.ldif` file to import
 all of out users and groups into the new LDAP setup:
 
 ```bash
-$ sudo ldapadd -c -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -H ldaps://ldap.cs.college.edu -f usersgroupsnopwm.ldif
+$ sudo ldapadd -c -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -H ldaps://ldap.cs.college.edu -f usersgroups.ldif
 ```
 
-Here are two sample entries from the `usersgroups.ldif` file, one
+Here are two sample entries from this `usersgroups.ldif` file, one
 for a user (`user1`) and one for a group (`sudo`):
 
 ```
@@ -335,26 +367,50 @@ cn: sudo
 gidNumber: 27
 memberUid: user1
 memberUid: user2
-memberUid: user2
 ```
 
 These entries and this file can either be produced by dumping your
-currentl ldap server data:
+current ldap server data (if you have one):
 
 ```bash
-$ ldapsearch -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -b "dc=cs,dc=college,dc=edu" -H ldaps://ldap.cs.college.edu -LLL > ldap_dump.ldif
+$ sudo ldapsearch -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -b "dc=cs,dc=college,dc=edu" -H ldaps://currentldapserver.cs.college.edu -LLL > usersgroups.ldif
 ```
 
-Or by writing a script to convert unix `/etc/passwd,shadow,group` files
+*Or* by writing a script to convert unix `/etc/passwd,shadow,group` files
 into the above format (with blank lines between each entry).
+
+Once you have users and groups added, use `ldapsearch` to test:
+
+```bash
+# run these on the new ldap server
+
+# see all entries
+$ ldapsearch -x -H ldapi:///
+
+# see all people
+$ sudo ldapsearch -x -LLL -D 'CN=admin,DC=cs,DC=college,DC=edu' -W -H ldaps://ldap.cs.college.edu -b 'OU=people,DC=cs,DC=college,DC=edu'
+
+# see one specific user
+$ sudo ldapsearch -x -LLL -D 'CN=admin,DC=cs,DC=college,DC=edu' -W -H ldaps://ldap.cs.college.edu -b 'OU=people,DC=cs,DC=college,DC=edu' -s sub '(uid=user1)'
+
+# see all groups
+$ sudo ldapsearch -x -LLL -D 'CN=admin,DC=cs,DC=college,DC=edu' -W -H ldaps://ldap.cs.college.edu -b 'OU=groups,DC=cs,DC=college,DC=edu'
+```
 
 ## configure ldapscripts
 
 If you want to make changes from the command line, on the ldap server,
-use ldapscripts package/scripts. This will let you run (or script) things
+use the ldapscripts package/scripts. These will let you run (or script) things
 like adding a group (`ldapaddgroup`) or adding a user to a group (`ldapaddusertogroup`).
+From the new ldap server this would look something like this (adding `newgrp` with gid 2001,
+then adding `user1` to the new group):
 
-The config files are in `/etc/ldapscripts`:
+```bash
+sudo ldapaddgroup newgrp 2001
+sudo ldapaddusertogroup user1 newgrp
+```
+
+The config files are in `/etc/ldapscripts`. Here are the changes I made:
 
 ```bash
 $ cd /etc/ldapscripts
@@ -369,10 +425,12 @@ BINDPWDFILE="/etc/ldapscripts/ldapscripts.passwd"
 
 Also add the LDAP admin password (without a new line) to 
 the `/etc/ldapscripts/ldapscripts.passwd` file (and make sure others can't read that file).
+In vim you can use `:set binary` and `:set noeol` to make a file that doesn't add a newline 
+character at the end of the file.
 
 ## memberOf stuff
 
-This might be optional. Some things (web apps) need to know if 
+This might be optional. Some things like web apps need to know if 
 a user is in a specific group. To be able to do that, you have 
 to add the "memberOf" overlay.
 
@@ -401,11 +459,12 @@ olcMemberOfGroupOC: groupOfNames
 $ sudo ldapadd -H ldapi:/// -Y EXTERNAL -f refint.ldif
 ```
 
-### now add the pwapp groupofnames group (can't be posixGroup???)
+### now add the pwapp groupofnames group 
 
-Here I am adding a `pwapp` (short for password app) group. I will
+As an example, here I am adding a `pwapp` (short for password app) group. I will
 add any admin users to this group, so my password app will be able to
-check the group when allowing admin access. 
+check the group when allowing admin access. Not sure why, but this can't
+be a posixGroup.
 
 ```bash
 $ cat groupofnames.ldif
@@ -414,7 +473,7 @@ objectclass: groupofnames
 cn: pwapp
 description: pw app admins
 member: 
-sudo ldapadd -x -D cn=admin,dc=cs,dc=college,dc=edu -H ldapi:/// -W -f groupofnames.ldif
+$ sudo ldapadd -x -D cn=admin,dc=cs,dc=college,dc=edu -H ldapi:/// -W -f groupofnames.ldif
 ```
 
 ### now add a user to the pwapp group
@@ -453,7 +512,7 @@ member: uid=user1,ou=people,dc=cs,dc=college,dc=edu
 Or search a specific user, to see if they are a member of:
 
 ```bash
-$ ldapsearch -x -LLL  -H ldaps://ldap.cs.college.edu -b "uid=user1,ou=people,dc=cs,dc=college,dc=edu" "(memberOf=cn=pwapp,ou=groups,dc=cs,dc=college,dc=edu)" uid
+$ sudo ldapsearch -x -LLL  -H ldaps://ldap.cs.college.edu -b "uid=user1,ou=people,dc=cs,dc=college,dc=edu" "(memberOf=cn=pwapp,ou=groups,dc=cs,dc=college,dc=edu)" uid
     
 dn: uid=user1,ou=people,dc=cs,dc=college,dc=edu
 uid: user1
@@ -478,13 +537,14 @@ Note: there is a unique organization identifier here (10672). I
 [looked that up somewhere](https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
 for my college.
 
-## add new schema
+## add new schema and attributes
 
 Made a new schema file called `passwordservice.schema`
 in a tmp directory:
 
 ```bash
-tmp$ cat passwordservice.schema
+$ cd /tmp
+$ cat passwordservice.schema
 #
 # 1.3.6.1.4.1   base OID
 # 10672         organization idenfifier
@@ -515,16 +575,19 @@ objectclass ( 1.3.6.1.4.1.10672.1.2020.06.20.1
 Use `slaptest` to turn the schema file into an ldif file:
 
 ```bash
-tmp$ cat passwordservice.conf
+$ cd /tmp
+$ cat passwordservice.conf
 include /tmp/passwordservice.schema
-tmp$ slaptest -f passwordservice.conf -F /tmp/foo
-tmp$ cd foo
-(keep going until you get to the dir with the ldif file)
+$ mkdir foo
+$ slaptest -f passwordservice.conf -F /tmp/foo
+$ cd foo
+$ cd cn=config
+$ cd cn=schema
 $ cat cn\=\{0\}passwordservice.ldif
 $ cp cn\=\{0\}passwordservice.ldif ~/passwordservice.ldif
 $ cd
 $ vim passwordservice.ldif
-(take out the top comments)
+(keep only the stuff shown below, modify the dn and cn)
 $ cat passwordservice.ldif
 dn: cn=cs,cn=schema,cn=config
 objectClass: olcSchemaConfig
@@ -539,12 +602,21 @@ olcObjectClasses: {0}( 1.3.6.1.4.1.10672.1.2020.06.20.1 NAME 'CSUser' DE
  ed $ csLastSeen ) )
 ```
 
+Again, see the [Cyrill Gremaud new schema page] for more details.
+
 ## use the ldif file
 
-Add the new attributes using the ldif file:
+Now add the new schema/attributes using the ldif file and verify it's there:
 
 ```bash
 $ sudo  ldapadd  -H ldapi:/// -Y EXTERNAL -f passwordservice.ldif
+adding new entry "cn=cs,cn=schema,cn=config"
+$ sudo ldapsearch -Q -LLL -Y EXTERNAL -H ldapi:/// -b cn=config cs*
+...
+...
+dn: cn={4}cs,cn=schema,cn=config
+...
+...
 ```
 
 Not sure if this is needed, but copied the ldif and schema files to `/etc/ldap/schema`
@@ -577,12 +649,19 @@ add: csLastSeen
 csLastSeen: 20140102030405.678Z
 -
 
-sudo ldapadd -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -H ldaps://ldap.cs.college.edu -f addpsinfo.ldif
+$ sudo ldapadd -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -H ldaps://ldap.cs.college.edu -f addpsinfo.ldif
+# and see the new data
+$ sudo ldapsearch -x -LLL -D 'CN=admin,DC=cs,DC=college,DC=edu' -W -H ldaps://ldap.cs.college.edu -b 'OU=people,DC=cs,DC=college,DC=edu' -s sub '(uid=user1)'
+...
+objectClass: CSUser
+...
+csAgreed: TRUE
+csLastSeen: 20140102030405.678Z
 ```
 
 Note: for the above user, we set them up to have already agreed to our "terms of service",
 and to have a "last seen" date of Jan 2, 2014. For new accounts we set these attributes 
-to FALSE and 19700101000000-0500.
+to `FALSE` and `19700101000000-0500`.
 
 # Backing up the LDAP server
 
@@ -599,3 +678,4 @@ Stuff here about setting up ubuntu client.
 [our using ldap page]: https://www.cs.swarthmore.edu/syshelp/ldap.html
 [THIS ldap page]: https://www.cs.swarthmore.edu/syshelp/ldap_install.html
 [tyler memberof page]: https://tylersguides.com/guides/openldap-memberof-overlay/
+[Cyrill Gremaud new schema page]: https://www.cyrill-gremaud.ch/how-to-add-new-schema-to-openldap-2-4/
