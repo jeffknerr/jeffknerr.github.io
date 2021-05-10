@@ -665,11 +665,51 @@ to `FALSE` and `19700101000000-0500`.
 
 # Backing up the LDAP server
 
-Stuff here about dumping the whole config. How to recover.
+I use the following script (monthly via cron) to get a dump of all ldap 
+data in an ldif file format. This is a klunky backup, but combined with 
+the above info, allows me to recreate a new ldap server in less than a 
+day, if needed.
+
+```bash
+#! /bin/sh
+
+# monthly dump of ldap data
+
+if [ `id -u` != 0 ]
+then
+  echo "You must have root privilege to run this program."
+  exit 1
+fi
+
+# assumes ldap admin password stored in this file
+LDAPPASSFILE=/root/ldappasswd
+
+# put ldif backup file here
+BACKDIR=/root/ldapbackups
+
+# ldap info
+LDAPCN="cn=admin,dc=cs,dc=college,dc=edu"
+LDAPBASE="dc=cs,dc=college,dc=edu" 
+LDAPURL="ldaps://ldap.cs.college.edu"
+
+# check for/make dir
+if [ ! -d $BACKDIR ] ; then
+  mkdir $BACKDIR
+  chmod 700 $BACKDIR
+fi
+
+# unique file name
+d=`date +'%m%d%Y'`
+fn=ldap_dump-${d}.ldif
+
+# make the backup
+cd $BACKDIR
+ldapsearch -Wx -D $LDAPCN -y $LDAPPASSFILE -b $LDAPBASE -H $LDAPURL -LLL > $fn
+```
 
 # LDAP client
 
-Stuff here about setting up ubuntu client.
+Stuff here about setting up an ubuntu client.
 
 
 [server-world LDAP page]: https://www.server-world.info/en/note?os=Debian_10&p=openldap&f=1
