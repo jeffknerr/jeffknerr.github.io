@@ -673,7 +673,7 @@ day, if needed.
 ```bash
 #! /bin/sh
 
-# monthly dump of ldap data
+# dump the ldap data
 
 if [ `id -u` != 0 ]
 then
@@ -684,10 +684,10 @@ fi
 # assumes ldap admin password stored in this file
 LDAPPASSFILE=/root/ldappasswd
 
-# put ldif backup file here
+# will put the ldif backup file here
 BACKDIR=/root/ldapbackups
 
-# ldap info
+# ldap site info
 LDAPCN="cn=admin,dc=cs,dc=college,dc=edu"
 LDAPBASE="dc=cs,dc=college,dc=edu" 
 LDAPURL="ldaps://ldap.cs.college.edu"
@@ -698,7 +698,7 @@ if [ ! -d $BACKDIR ] ; then
   chmod 700 $BACKDIR
 fi
 
-# unique file name
+# create unique file name
 d=`date +'%m%d%Y'`
 fn=ldap_dump-${d}.ldif
 
@@ -707,10 +707,52 @@ cd $BACKDIR
 ldapsearch -Wx -D $LDAPCN -y $LDAPPASSFILE -b $LDAPBASE -H $LDAPURL -LLL > $fn
 ```
 
-# LDAP client
+# ubuntu LDAP client
 
-Stuff here about setting up an ubuntu client.
+Here are the minimal steps needed to set up an ubuntu (20.04) client:
 
+- install some packages:
+
+```bash
+# apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
+```
+
+The above will ask you for information about your ldap server and your
+ldap DN (e.g., ldap.cs.college.edu and dc=cs,dc=college,dc=edu).
+
+- install the ssl cert somewhere (not sure if this is needed if you want to
+  use `tls_reqcert allow` below) and make sure `/etc/nslcd.conf` is correct:
+
+```bash
+# cat /etc/nslcd.conf | grep -v ^#
+
+uid nslcd
+gid nslcd
+
+uri ldaps://ldap.cs.college.edu
+
+base dc=cs,dc=college,dc=edu
+
+tls_reqcert demand
+tls_cacertfile /etc/ssl/certs/fullchain.pem
+```
+
+NOTE: the `fullchain.pem` file is from the `/etc/letsencrypt/live/ldap.cs.college.edu` directory
+on your ldap server.
+
+- reboot the client computer:
+
+```bash
+# sync
+# sync
+# reboot
+```
+
+- see if the ldap accounts show up
+
+```bash
+# getent passwd
+```
 
 [server-world LDAP page]: https://www.server-world.info/en/note?os=Debian_10&p=openldap&f=1
 [debian ldap wiki]: https://wiki.debian.org/LDAP/OpenLDAPSetup
