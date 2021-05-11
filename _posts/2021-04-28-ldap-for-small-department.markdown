@@ -717,20 +717,19 @@ Here are the minimal steps needed to set up an ubuntu (20.04) client:
 $ sudo apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
 ```
 
-The above will install other packages (like nslcd) and
-ask you for information about your ldap server and setup:
+The above will install other packages (like `nslcd`) and
+ask you for information about your ldap server and setup (make sure
+to use *ldaps* for the uri):
 
 * server uri: `ldaps://<IP address of your ldap server>`
 * search base: `dc=cs,dc=college,dc=edu`
-* check server's SSL cert: `demand` (or `allow` if you prefer)
+* check server's SSL cert: `allow`
 * services to configure: passwd, group, shadow (will set `/etc/nsswitch.conf`)
 
-- install the ssl cert (`fullchain.pem`) somewhere (below I chose `/etc/ssl/certs`). 
-  Not sure if this is needed if you want to use `tls_reqcert allow` below.
-  Also edit `/etc/nslcd.conf` to make sure it is correct:
+- check/edit `/etc/nslcd.conf` to make sure it is correct:
 
 ```bash
-# cat /etc/nslcd.conf | grep -v ^#
+$ cat /etc/nslcd.conf | grep -v ^#
 
 uid nslcd
 gid nslcd
@@ -739,12 +738,12 @@ uri ldaps://<IP address of your ldap server>
 
 base dc=cs,dc=college,dc=edu
 
-tls_reqcert demand
+tls_reqcert allow
 tls_cacertfile /etc/ssl/certs/fullchain.pem
 ```
-
-NOTE: the `fullchain.pem` file is from the `/etc/letsencrypt/live/ldap.cs.college.edu` directory
-on your ldap server.
+NOTE: the `fullchain.pem` file is the ldap server SSL cert from the
+`/etc/letsencrypt/live/ldap.cs.college.edu` directory, copied over to
+the client computer.
 
 - reboot the client computer:
 
@@ -757,7 +756,7 @@ $ sudo reboot
 - see if the ldap accounts show up
 
 ```bash
-$ sudo getent passwd
+$ getent passwd
 ```
 
 Another NOTE: if the `getent passwd` fails, try restarting nslcd: `systemctl restart nslcd`.
