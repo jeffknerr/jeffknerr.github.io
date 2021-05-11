@@ -714,14 +714,20 @@ Here are the minimal steps needed to set up an ubuntu (20.04) client:
 - install some packages:
 
 ```bash
-# apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
+$ sudo apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
 ```
 
-The above will ask you for information about your ldap server and your
-ldap DN (e.g., ldap.cs.college.edu and dc=cs,dc=college,dc=edu).
+The above will install other packages (like nslcd) and
+ask you for information about your ldap server and setup:
 
-- install the ssl cert somewhere (not sure if this is needed if you want to
-  use `tls_reqcert allow` below) and make sure `/etc/nslcd.conf` is correct:
+* server uri: `ldaps://<IP address of your ldap server>`
+* search base: `dc=cs,dc=college,dc=edu`
+* check server's SSL cert: `demand` (or `allow` if you prefer)
+* services to configure: passwd, group, shadow (will set `/etc/nsswitch.conf`)
+
+- install the ssl cert (`fullchain.pem`) somewhere (below I chose `/etc/ssl/certs`). 
+  Not sure if this is needed if you want to use `tls_reqcert allow` below.
+  Also edit `/etc/nslcd.conf` to make sure it is correct:
 
 ```bash
 # cat /etc/nslcd.conf | grep -v ^#
@@ -729,7 +735,7 @@ ldap DN (e.g., ldap.cs.college.edu and dc=cs,dc=college,dc=edu).
 uid nslcd
 gid nslcd
 
-uri ldaps://ldap.cs.college.edu
+uri ldaps://<IP address of your ldap server>
 
 base dc=cs,dc=college,dc=edu
 
@@ -743,16 +749,21 @@ on your ldap server.
 - reboot the client computer:
 
 ```bash
-# sync
-# sync
-# reboot
+$ sudo sync
+$ sudo sync
+$ sudo reboot
 ```
 
 - see if the ldap accounts show up
 
 ```bash
-# getent passwd
+$ sudo getent passwd
 ```
+
+Another NOTE: if the `getent passwd` fails, try restarting nslcd: `systemctl restart nslcd`.
+Not sure why the reboot doesn't just work, but the first time I rebooted, nslcd still wasn't able
+to connect to the ldap server, until I restarted it. :(
+
 
 [server-world LDAP page]: https://www.server-world.info/en/note?os=Debian_10&p=openldap&f=1
 [debian ldap wiki]: https://wiki.debian.org/LDAP/OpenLDAPSetup
