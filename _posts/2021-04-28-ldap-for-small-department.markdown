@@ -719,17 +719,17 @@ $ sudo apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
 
 The apt-get will install other packages, like `nslcd`, and
 ask you for information about your ldap server and setup (make sure
-to use *ldaps* for the uri):
+to use **ldaps** for the uri):
 
 * server uri: `ldaps://<IP address of your ldap server>`
 * search base: `dc=cs,dc=college,dc=edu`
-* check server's SSL cert: `allow`
+* check server's SSL cert: `never`
 * services to configure: passwd, group, shadow (will set `/etc/nsswitch.conf`)
 
 - check/edit `/etc/nslcd.conf` to make sure it is correct:
 
 ```bash
-$ cat /etc/nslcd.conf | grep -v ^#
+$ sudo cat /etc/nslcd.conf | grep -v ^#
 
 uid nslcd
 gid nslcd
@@ -738,20 +738,8 @@ uri ldaps://<IP address of your ldap server>
 
 base dc=cs,dc=college,dc=edu
 
-tls_reqcert allow
-tls_cacertfile /etc/ssl/certs/fullchain.pem
-```
-
-NOTE: the `fullchain.pem` file is the ldap server SSL cert from the
-`/etc/letsencrypt/live/ldap.cs.college.edu` directory, copied over to
-the client computer.
-
-- reboot the client computer:
-
-```bash
-$ sudo sync
-$ sudo sync
-$ sudo reboot
+tls_reqcert never
+tls_cacertfile /etc/ssl/certs/ca-certificates.crt
 ```
 
 - see if the ldap accounts show up
@@ -760,10 +748,16 @@ $ sudo reboot
 $ getent passwd
 ```
 
-Another NOTE: if the `getent passwd` fails, try restarting nslcd: `systemctl restart nslcd`.
-Not sure why the reboot doesn't just work, but the first time I rebooted, nslcd still wasn't able
-to connect to the ldap server, until I restarted it. :(
+- reboot the client computer:
 
+Even though it looks like ldap is working, I always need a reboot here
+before I can log in as a normal user. Not sure why...
+
+```bash
+$ sudo sync
+$ sudo sync
+$ sudo reboot
+```
 
 [server-world LDAP page]: https://www.server-world.info/en/note?os=Debian_10&p=openldap&f=1
 [debian ldap wiki]: https://wiki.debian.org/LDAP/OpenLDAPSetup
