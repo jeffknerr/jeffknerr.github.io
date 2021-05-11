@@ -717,7 +717,7 @@ Here are the minimal steps needed to set up an ubuntu (20.04) ldap client:
 $ sudo apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
 ```
 
-The above will install other packages (like `nslcd`) and
+The apt-get will install other packages, like `nslcd`, and
 ask you for information about your ldap server and setup (make sure
 to use *ldaps* for the uri):
 
@@ -741,6 +741,7 @@ base dc=cs,dc=college,dc=edu
 tls_reqcert allow
 tls_cacertfile /etc/ssl/certs/fullchain.pem
 ```
+
 NOTE: the `fullchain.pem` file is the ldap server SSL cert from the
 `/etc/letsencrypt/live/ldap.cs.college.edu` directory, copied over to
 the client computer.
