@@ -709,7 +709,7 @@ ldapsearch -Wx -D $LDAPCN -y $LDAPPASSFILE -b $LDAPBASE -H $LDAPURL -LLL > $fn
 
 # ubuntu LDAP client
 
-Here are the minimal steps needed to set up an ubuntu (20.04) client:
+Here are the minimal steps needed to set up an ubuntu (20.04) ldap client:
 
 - install some packages:
 
@@ -717,12 +717,12 @@ Here are the minimal steps needed to set up an ubuntu (20.04) client:
 $ sudo apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
 ```
 
-The above will install other packages (like nslcd) and
+The above will install other packages (like `nslcd`) and
 ask you for information about your ldap server and setup:
 
 * server uri: `ldaps://<IP address of your ldap server>`
 * search base: `dc=cs,dc=college,dc=edu`
-* check server's SSL cert: `demand` (or `allow` if you prefer)
+* check server's SSL cert: `allow`
 * services to configure: passwd, group, shadow (will set `/etc/nsswitch.conf`)
 
 - install the ssl cert (`fullchain.pem`) somewhere (below I chose `/etc/ssl/certs`). 
@@ -730,7 +730,7 @@ ask you for information about your ldap server and setup:
   Also edit `/etc/nslcd.conf` to make sure it is correct:
 
 ```bash
-# cat /etc/nslcd.conf | grep -v ^#
+$ cat /etc/nslcd.conf | grep -v ^#
 
 uid nslcd
 gid nslcd
