@@ -45,15 +45,15 @@ DENY_SENDER_DOMAIN {
 candlewick.club
 dearestpenst.shop
 DEFENSEMECHANISM.INFO
-/.*\.cyou/
-/.*\.work/
-/.*\.cam/
-/.*\.buzz/
-/.*\.top/
-/.*\.info/
-/.*\..*\.cam/
-/.*\..*\.work/
-/.*\..*\.cyou/
+/.*\.cyou$/
+/.*\.work$/
+/.*\.cam$/
+/.*\.buzz$/
+/.*\.top$/
+/.*\.info$/
+/.*\..*\.cam$/
+/.*\..*\.work$/
+/.*\..*\.cyou$/
 nedbank.co.za
 redchillideals.co.za
 chi.v3lomail.com
@@ -70,13 +70,13 @@ match "From" email domains such as `makdda.work` and
 `mail.makdda.work`.
 
 See the perldoc link for more info on regular expressions. Here's 
-what the `/.*\..*\.cyou/` expression is trying to match:
+what the `/.*\..*\.cyou$/` expression is trying to match:
 
     .* matches any single character (except newline) plus 0 or more of the preceding element (the dot element)
     \. matches an actual dot character
     .* another "any character plus 0 or more of any character"
     \. another actual dot
-    cyou/   match should end with "cyou"
+    cyou$/   match should end with "cyou"
 
 So that should match "a.b.cyou" and "hello.dear.cyou" and anything
 else of the form "whatever.moretext.cyou".
@@ -132,7 +132,7 @@ Any that match my `allowsender.map` entries get a score of 0 and get accepted
 
 In these map files I have both specific email addresses to deny (`jobs@target.com`)
 and to allow (`root@myschool.edu`), as well as regular expressions like
-`/.*@.*\.buzz/` and `/.*@myschool.edu/`.
+`/.*@.*\.buzz$/` and `/.*@myschool.edu$/`.
 
 ## Example: deny/allow ip address
 
