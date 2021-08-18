@@ -31,13 +31,21 @@ Here are a bunch of links I have used while trying to figure this out:
 - [tyler memberof page]
 - [Cyrill Gremaud new schema page]
 
+You will probably also want to clone my 
+[ldapscripts repo](https://github.com/jeffknerr/ldapscripts), which 
+contains the scripts and ldif files used below:
+
+{% include codeHeader.html %}
+```bash
+git clone https://github.com/jeffknerr/ldapscripts.git
+```
 
 # LDAP server
 
 ## install pkgs on ldap server
 
 ```bash
-$ sudo apt-get install slapd shelldap ldap-utils ldapscripts
+$ sudo apt-get install slapd shelldap ldap-utils ldapscripts 
 $ sudo dpkg-reconfigure slapd
 ```
 
@@ -85,6 +93,10 @@ adding new entry "ou=groups,dc=cs,dc=college,dc=edu"
 Running the `ldapadd` command will ask for the admin password you 
 configured above.
 
+Again, see my 
+[ldapscripts repo](https://github.com/jeffknerr/ldapscripts) 
+for copies of scripts and ldif files.
+
 ## add logging
 
 ```bash
@@ -105,9 +117,9 @@ modifying entry "cn=config"
 
 I use [certbot/letsencrypt](https://certbot.eff.org/) to create an SSL cert.
 
+{% include codeHeader.html %}
 ```bash
-$ sudo apt-get install certbot
-$ sudo certbot certonly --standalone
+sudo apt-get install certbot ; sudo certbot certonly --standalone
 ```
 
 When certbot asks for your *domain name*, what it really wants is
@@ -713,8 +725,9 @@ Here are the minimal steps needed to set up an ubuntu (20.04) ldap client:
 
 - install some packages:
 
+{% include codeHeader.html %}
 ```bash
-$ sudo apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
+sudo apt-get install libnss-ldapd libpam-ldapd ldap-utils python3-ldap3
 ```
 
 The apt-get will install other packages, like `nslcd`, and
@@ -753,10 +766,9 @@ $ getent passwd
 Even though it looks like ldap is working, I always need a reboot here
 before I can log in as a normal user. Not sure why...
 
+{% include codeHeader.html %}
 ```bash
-$ sudo sync
-$ sudo sync
-$ sudo reboot
+sudo sync ; sudo sync ; sudo reboot
 ```
 
 [server-world LDAP page]: https://www.server-world.info/en/note?os=Debian_10&p=openldap&f=1
