@@ -70,7 +70,7 @@ Also, if you need/want to restart the whole process (I did many times),
 you can do this to wipe out the current _slapd_ files:
 
 ```bash
-$ sudo service slapd stop
+$ sudo systemctl stop slapd
 $ sudo apt-get remove --purge slapd
 $ sudo \rm -rf /var/lib/slapd
 ```
@@ -204,7 +204,7 @@ TLS_CACERT  /etc/letsencrypt/live/ldap.cs.college.edu/chain.pem
 Change to use ldaps:
 
 ```bash
-$ sudo vim /etc/default/slapd      (change SLAPD_SERVICES="ldaps:/// ldapi:///")
+$ sudo vim /etc/default/slapd     (change to SLAPD_SERVICES="ldaps:/// ldapi:///")
 $ sudo service slapd restart
 ```
 
@@ -346,8 +346,8 @@ don't stick...
 *Finally*, we can try to add a users and  groups! 
 
 For our server we made a giant 
-`usersgroups.ldif` file to import
-all of out users and groups into the new LDAP setup:
+`usersgroups.ldif` file (see how below) to import
+all of our users and groups into the new LDAP setup:
 
 ```bash
 $ sudo ldapadd -c -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -H ldaps://ldap.cs.college.edu -f usersgroups.ldif
@@ -395,9 +395,16 @@ current ldap server data (if you have one):
 
 ```bash
 $ sudo ldapsearch -Wx -D "cn=admin,dc=cs,dc=college,dc=edu" -b "dc=cs,dc=college,dc=edu" -H ldaps://currentldapserver.cs.college.edu -LLL > usersgroups.ldif
+Enter LDAP Password:
+
 ```
 
-*Or* by writing a script to convert unix `/etc/passwd,shadow,group` files
+*Or* by writing a script (see my 
+[`ldapuser.sh`](https://github.com/jeffknerr/ldapscripts/blob/main/ldapuser.sh)
+and 
+[`ldapgroup.sh`](https://github.com/jeffknerr/ldapscripts/blob/main/ldapgroup.sh)
+sample scripts)
+to convert unix `/etc/passwd,shadow,group` files
 into the above format (with blank lines between each entry).
 
 Once you have users and groups added, use `ldapsearch` to test:
@@ -466,7 +473,7 @@ olcModuleLoad: memberof.la
 $ sudo ldapmodify -H ldapi:/// -Y EXTERNAL -f memberof.ldif
 ```
 
-### now config the overlay
+### now config the overlay using `ldapadd`
 
 ```bash
 $ cat refint.ldif
