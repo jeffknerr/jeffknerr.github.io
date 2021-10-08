@@ -57,6 +57,15 @@ You will also be asked for
 your ldap domain info. For this page I will use `dc=cs,dc=college,dc=edu`
 as an example (as in user@cs.college.edu).
 
+Here are the slapd configure questions and my typical answers:
+
+    DNS domain: cs.college.edu
+    organization: cs.college.edu
+    admin password: make this a good one!!!
+    database backend: MDB
+    remove db when purge: No
+    move old db: Yes
+
 Also, if you need/want to restart the whole process (I did many times), 
 you can do this to wipe out the current _slapd_ files:
 
