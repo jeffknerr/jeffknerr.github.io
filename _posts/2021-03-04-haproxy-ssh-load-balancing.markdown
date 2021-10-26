@@ -124,7 +124,7 @@ Some things to note in the above config:
 * see [Evan Carmi's blog post on *Setup HAProxy stats over HTTPS*][carmi] 
     for how to set up https for the stats page (we use 
     [certbot](https://certbot.eff.org/) and [letsencrypt](https://letsencrypt.org/)
-    for our ssl certificate)
+    for our ssl certificate (e.g., `certbot certonly --standalone`))
 * the `tcp-check` line means it is looking for a string that starts with SSH-2.0-OpenSSH
     when checking if the ssh service is up on each host. Try `telnet hostname 22` to 
     see what your sshd prints.
