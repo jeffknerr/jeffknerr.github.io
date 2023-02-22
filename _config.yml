@@ -27,6 +27,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://jeffknerr.github.io/"
 twitter_username: jeffknerr
 github_username:  jeffknerr
+storygraph_username: jeffknerr
 
 # Build settings
 #theme: minima
@@ -59,5 +60,5 @@ footer_icons:
     url: https://github.com/jeffknerr
     icon: icon-github.svg
   - username: jeffknerr
-    url: https://twitter.com/jeffknerr
-    icon: icon-twitter.svg
+    url: https://app.thestorygraph.com/profile/jeffknerr
+    icon: icon-storygraph.svg
