@@ -83,6 +83,20 @@ git push
 Now your site should be up at **https://username.github.io** (actually, it might
 take a minute or two to finish the full deploy).
 
+## new post
+
+```
+$ cd _posts
+$ vim year-month-day-new-title-page.markdown
+(add your post here)
+$ bundle exec jekyll build
+$ bundle exec jekyll serve
+```
+
+Now go to `http://127.0.0.1:4000` to see local site.
+If everything looks good, git commit and push...
+
+
 ## things to fix
 
 - I get a **running version of Bundler (2.1.2) is older than...** warning when I run `jekyll serve`
